@@ -1,11 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
@@ -15,13 +9,46 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  userName  String
-  email     String    @unique
-  password  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  avatarUrl String?
-  lastSeen  DateTime?
-  status    String?   @default("offline")
+  id            String                    @id @default(uuid())
+  userName      String
+  email         String                    @unique
+  password      String
+  createdAt     DateTime                  @default(now())
+  updatedAt     DateTime                  @updatedAt
+  avatarUrl     String?
+  lastSeen      DateTime?
+  status        String?                   @default("offline")
+  conversations ConversationParticipant[]
+}
+
+model Conversation {
+  id            String                    @id @default(uuid())
+  name          String?
+  isGroup       Boolean                   @default(false)
+  messages      Message[]                 @relation("ConversationMessages")
+  participants  ConversationParticipant[]
+  lastMessageId String?                   @unique
+  lastMessage   Message?                  @relation("ConversationLastMessage", fields: [lastMessageId], references: [id])
+}
+
+model ConversationParticipant {
+  id             String       @id @default(uuid())
+  userId         String
+  conversationId String
+  joinedAt       DateTime     @default(now())
+  user           User         @relation(fields: [userId], references: [id])
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+  @@unique([userId, conversationId])
+}
+
+model Message {
+  id             String        @id @default(uuid())
+  message        String
+  senderId       String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  conversationId String?
+  conversation   Conversation? @relation("ConversationMessages", fields: [conversationId], references: [id])
+  lastMessageOf  Conversation? @relation("ConversationLastMessage")
 }
