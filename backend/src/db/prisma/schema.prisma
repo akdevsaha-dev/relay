@@ -19,6 +19,7 @@ model User {
   lastSeen      DateTime?
   status        String?                   @default("offline")
   conversations ConversationParticipant[]
+  myContacts    Contact[]                 @relation("UserContacts")
 }
 
 model Conversation {
@@ -29,6 +30,16 @@ model Conversation {
   participants  ConversationParticipant[]
   lastMessageId String?                   @unique
   lastMessage   Message?                  @relation("ConversationLastMessage", fields: [lastMessageId], references: [id])
+}
+
+model Contact {
+  id          String   @id @default(uuid())
+  ownerId     String
+  addedUserId String
+  addedAt     DateTime @default(now())
+  isBlocked   Boolean  @default(false)
+  nickName    String?
+  owner       User     @relation("UserContacts", fields: [ownerId], references: [id])
 }
 
 model ConversationParticipant {
