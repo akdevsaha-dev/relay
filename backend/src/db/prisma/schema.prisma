@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
   output   = "../src/generated/prisma"
 }
 
@@ -9,17 +9,18 @@ datasource db {
 }
 
 model User {
-  id            String                    @id @default(uuid())
-  userName      String
-  email         String                    @unique
-  password      String
-  createdAt     DateTime                  @default(now())
-  updatedAt     DateTime                  @updatedAt
-  avatarUrl     String?
-  lastSeen      DateTime?
-  status        String?                   @default("offline")
-  conversations ConversationParticipant[]
-  myContacts    Contact[]                 @relation("UserContacts")
+  id              String                    @id @default(uuid())
+  userName        String
+  email           String                    @unique
+  password        String
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  avatarUrl       String?
+  lastSeen        DateTime?
+  status          String?                   @default("offline")
+  conversations   ConversationParticipant[]
+  myContacts      Contact[]                 @relation("UserContacts")
+  myAddedContacts Contact[]                 @relation("AddedUser")
 }
 
 model Conversation {
@@ -39,7 +40,10 @@ model Contact {
   addedAt     DateTime @default(now())
   isBlocked   Boolean  @default(false)
   nickName    String?
-  owner       User     @relation("UserContacts", fields: [ownerId], references: [id])
+  owner       User     @relation("UserContacts", fields: [ownerId], references: [id], onDelete: Cascade)
+  addedUser   User     @relation("AddedUser", fields: [addedUserId], references: [id], onDelete: Cascade)
+
+  @@unique([ownerId, addedUserId])
 }
 
 model ConversationParticipant {
