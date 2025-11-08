@@ -23,6 +23,15 @@ export const createMessage = async (req: Request, res: Response) => {
                 conversationId
             }
         })
+
+        await prisma.conversation.update({
+            where: {
+                id: conversationId
+            },
+            data: {
+                lastMessageId: newMessage.id
+            }
+        })
         return res.status(400).json({
             success: true,
             message: "sent",

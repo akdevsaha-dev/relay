@@ -18,6 +18,7 @@ model User {
   avatarUrl       String?
   lastSeen        DateTime?
   status          String?                   @default("offline")
+  about           String?
   conversations   ConversationParticipant[]
   myContacts      Contact[]                 @relation("UserContacts")
   myAddedContacts Contact[]                 @relation("AddedUser")
