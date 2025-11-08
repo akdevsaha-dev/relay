@@ -33,7 +33,7 @@ export const addContact = async (req: Request, res: Response) => {
             })
             return res.status(200).json({
                 success: true,
-                newContact,
+                data: newContact,
                 message: "Contact added successfully!"
             })
         }
@@ -122,7 +122,7 @@ export const deleteContact = async (req: Request, res: Response) => {
         res.status(200).json({
             success: true,
             message: "Contact deleted successfully",
-            deletedContact
+            data: deletedContact
         });
 
     } catch (error) {
@@ -181,7 +181,7 @@ export const updateContact = async (req: Request, res: Response) => {
         res.status(200).json({
             success: true,
             message: "Contact updated successfully",
-            updatedContact
+            data: updatedContact
         });
     } catch (error) {
         console.error("Error deleting contact:", error);

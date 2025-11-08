@@ -63,7 +63,7 @@ model Message {
   senderId       String
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
-  conversationId String?
+  conversationId String
   conversation   Conversation? @relation("ConversationMessages", fields: [conversationId], references: [id])
   lastMessageOf  Conversation? @relation("ConversationLastMessage")
 }
