@@ -1,26 +1,33 @@
 import type { Request, Response } from "express";
 import prisma from "../db/client.js";
+import multer from "multer"
+import cloudinary from "../lib/cloudinary.js";
 
+const uplaod = multer({ dest: "uploads/" })
+export const multerMiddleware = uplaod.single("avatar")
 export const setProfilePicture = async (req: Request, res: Response) => {
-    const { userId, avatarUrl } = req.body;
 
     try {
-        if (!userId || !avatarUrl) {
+        const { userId } = req.body;
+        const file = req.file;
+        if (!userId || !file) {
             return res.status(400).json({
                 success: false,
                 message: "Error. Try again later"
             })
         }
-
+        const result = await cloudinary.uploader.upload(file.path, {
+            folder: "avatars",
+            transformation: [{ width: 300, height: 300, crop: "fill" }],
+        })
         const setProfile = await prisma.user.update({
             where: {
                 id: userId
             },
             data: {
-                avatarUrl
+                avatarUrl: result.secure_url
             }
         })
-        // TODO: Cloudinary steps to complete
     } catch (error) {
         console.log(error)
         return res.status(400).json({
