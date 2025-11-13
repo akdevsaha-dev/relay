@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import prisma from "../db/client.js";
-import { date, success } from "zod";
+
 export const createConversation = async (req: Request, res: Response) => {
     const { senderId, recieverId } = req.body
     try {
@@ -95,5 +95,40 @@ export const getAllConversations = async (req: Request, res: Response) => {
             success: false,
             error: "cannot fetch conversations."
         })
+    }
+}
+
+
+export const createGroupConversation = async (req: Request, res: Response) => {
+
+    try {
+        const { name, creatorId, groupMemberIds } = req.body;
+
+        if (groupMemberIds.length < 2)
+            return res.status(400).json({ message: "Minimum 3 people are required to create a group" })
+
+        if (!name)
+            return res.status(400).json({ message: "Cannot create group without a name" })
+
+        if (!creatorId || !groupMemberIds)
+            return res.status(400).json({ message: "cannot create group" })
+
+        const group = await prisma.conversation.create({
+            data: {
+                isGroup: true,
+                name,
+                participants: {
+                    create: [
+                        { user: { connect: { id: creatorId } } },
+                        ...groupMemberIds.map((id: string) => ({
+                            user: { connect: { id } },
+                        })),
+                    ]
+                }
+            }
+        })
+
+    } catch (error) {
+
     }
 }
