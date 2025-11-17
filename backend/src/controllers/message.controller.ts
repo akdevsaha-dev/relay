@@ -1,51 +1,6 @@
 import type { Request, Response } from "express";
 import z from "zod"
 import prisma from "../db/client.js";
-export const createMessage = async (req: Request, res: Response) => {
-
-    const schema = z.object({
-        message: z.string(),
-        senderId: z.string(),
-        conversationId: z.string()
-    })
-    try {
-        const { message, senderId, conversationId } = schema.parse(req.body)
-        if (!message || !senderId || !conversationId) {
-            return res.status(400).json({
-                success: false,
-                message: "short on inputs"
-            })
-        }
-        const newMessage = await prisma.message.create({
-            data: {
-                message,
-                senderId,
-                conversationId
-            }
-        })
-
-        await prisma.conversation.update({
-            where: {
-                id: conversationId
-            },
-            data: {
-                lastMessageId: newMessage.id
-            }
-        })
-        return res.status(400).json({
-            success: true,
-            message: "sent",
-            data: newMessage
-        })
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({
-            success: false,
-            error: "Failed to send message."
-        })
-    }
-}
-
 
 export const getMessage = async (req: Request, res: Response) => {
     const { conversationId } = req.params

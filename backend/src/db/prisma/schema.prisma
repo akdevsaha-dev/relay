@@ -28,6 +28,8 @@ model Conversation {
   id            String                    @id @default(uuid())
   name          String?
   isGroup       Boolean                   @default(false)
+  createdAt     DateTime                  @default(now())
+  updatedAt     DateTime                  @updatedAt
   messages      Message[]                 @relation("ConversationMessages")
   participants  ConversationParticipant[]
   lastMessageId String?                   @unique
