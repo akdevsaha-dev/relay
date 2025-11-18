@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import type { Request, Response } from "express";
 import { generateToken } from "../lib/auth/generateToken.js";
-import z from "zod";
+import z, { success } from "zod";
 import prisma from "../db/client.js";
 
 export const Signup = async (req: Request, res: Response) => {
@@ -101,6 +101,7 @@ export const Signin = async (req: Request, res: Response) => {
     } catch (error) {
         console.log(error)
         return res.status(500).json({
+            success: false,
             message: "Error signing in."
         })
     }
@@ -113,5 +114,20 @@ export const Logout = (req: Request, res: Response) => {
         sameSite: "strict",
         secure: process.env.NODE_ENV === "production"
     })
-    return res.status(200).json({ message: "Logged out successfully" })
+    return res.status(200).json({
+        success: true,
+        message: "Logged out successfully"
+    })
+}
+
+export const checkAuth = (req: Request, res: Response) => {
+    try {
+        res.status(200).json(req.user)
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        })
+    }
 }
