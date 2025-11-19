@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import { axiosInstance } from "../lib/axios"
+import toast from "react-hot-toast"
 
 interface authUser {
     id: string,
@@ -45,8 +46,8 @@ export const useAuthStore = create<authStore>((set) => ({
             const res = await axiosInstance.post("/auth/signup", data)
             set({ authUser: res.data })
             return true;
-        } catch (error) {
-            console.error("Failed creating account", error)
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "something went wrong")
             return false
         } finally {
             set({ isSigningUp: false })
@@ -58,8 +59,8 @@ export const useAuthStore = create<authStore>((set) => ({
             const res = await axiosInstance.post("/auth/signin", data)
             set({ authUser: res.data })
             return true;
-        } catch (error) {
-            console.log("error signing in", error)
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "something went wrong")
             return false;
         } finally {
             set({ isSigningIn: false })
