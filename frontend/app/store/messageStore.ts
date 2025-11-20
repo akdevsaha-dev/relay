@@ -3,7 +3,7 @@ import toast from "react-hot-toast"
 import { create } from "zustand"
 import { axiosInstance } from "../lib/axios"
 
-type Message = {
+export type Message = {
     id: string
     message: string
     senderId: string
