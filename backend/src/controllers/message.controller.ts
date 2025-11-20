@@ -6,7 +6,7 @@ export const getMessage = async (req: Request, res: Response) => {
     if (!conversationId) {
         return res.status(400).json({
             success: false,
-            message: "Missing conversation id."
+            error: "Missing conversation id."
         })
     }
     try {
@@ -31,18 +31,18 @@ export const getMessage = async (req: Request, res: Response) => {
 }
 
 export const deleteMessage = async (req: Request, res: Response) => {
-    const { id } = req.body;
+    const { messageId } = req.params;
 
     try {
-        if (!id) {
+        if (!messageId) {
             return res.status(400).json({
                 success: false,
-                message: "No message id"
+                error: "No message id"
             })
         }
         await prisma.message.delete({
             where: {
-                id
+                id: messageId
             }
         })
 
@@ -66,7 +66,7 @@ export const updateMessage = async (req: Request, res: Response) => {
         if (!id || !message) {
             return res.status(400).json({
                 success: false,
-                message: "short on inputs"
+                error: "short on inputs"
             })
         }
         const updatedMessage = await prisma.message.update({
@@ -85,7 +85,7 @@ export const updateMessage = async (req: Request, res: Response) => {
         console.log(error)
         return res.status(400).json({
             success: false,
-            message: "Failed to update message!"
+            error: "Failed to update message!"
         })
     }
 }

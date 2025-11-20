@@ -13,7 +13,7 @@ export const addContact = async (req: Request, res: Response) => {
     if (!ownerId || !addedUserId) {
         return res.status(400).json({
             success: false,
-            message: "No data provided."
+            error: "No data provided."
         })
     }
     try {
@@ -39,7 +39,7 @@ export const addContact = async (req: Request, res: Response) => {
         }
         return res.status(400).json({
             success: false,
-            message: "Contact already exists."
+            error: "Contact already exists."
         })
 
     } catch (error) {
@@ -57,7 +57,7 @@ export const getAllContacts = async (req: Request, res: Response) => {
         if (!ownerId) {
             return res.status(400).json({
                 success: false,
-                message: "OwnerId is required"
+                error: "OwnerId is required"
             })
         }
         const allContacts = await prisma.contact.findMany({
@@ -101,7 +101,7 @@ export const deleteContact = async (req: Request, res: Response) => {
         if (!id) {
             return res.status(400).json({
                 success: false,
-                message: "Contact id is required"
+                error: "Contact id is required"
             });
         }
         const contact = await prisma.contact.findUnique({
@@ -112,7 +112,7 @@ export const deleteContact = async (req: Request, res: Response) => {
         if (!contact) {
             return res.status(404).json({
                 success: false,
-                message: "Contact not found"
+                error: "Contact not found"
             });
         }
         const deletedContact = await prisma.contact.delete({
@@ -129,7 +129,7 @@ export const deleteContact = async (req: Request, res: Response) => {
         console.error("Error deleting contact:", error);
         res.status(500).json({
             success: false,
-            message: "Failed to delete contact"
+            error: "Failed to delete contact"
         });
     }
 }
@@ -142,7 +142,7 @@ export const updateContact = async (req: Request, res: Response) => {
         if (!id) {
             return res.status(400).json({
                 success: false,
-                message: "Contact id is required"
+                error: "Contact id is required"
             });
         }
         const contact = await prisma.contact.findUnique({
@@ -152,7 +152,7 @@ export const updateContact = async (req: Request, res: Response) => {
         if (!contact) {
             return res.status(404).json({
                 success: false,
-                message: "Contact not found"
+                error: "Contact not found"
             });
         }
 
@@ -187,7 +187,7 @@ export const updateContact = async (req: Request, res: Response) => {
         console.error("Error deleting contact:", error);
         res.status(500).json({
             success: false,
-            message: "Failed to delete contact"
+            error: "Failed to delete contact"
         });
     }
 }

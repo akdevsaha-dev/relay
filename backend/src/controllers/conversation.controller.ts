@@ -4,23 +4,22 @@ import prisma from "../db/client.js";
 export const createConversation = async (req: Request, res: Response) => {
     const { senderId, recieverId } = req.body
     try {
-        if (!senderId || recieverId) {
+        if (!senderId || !recieverId) {
             return res.status(400).json({
                 success: false,
-                message: "No sender or reciever ID"
+                error: "No sender or reciever ID"
             })
         }
 
         const existingConversation = await prisma.conversation.findFirst({
             where: {
                 isGroup: false,
-                participants: {
-                    every: {
-                        userId: { in: [senderId, recieverId] }
-                    }
-                }
+                AND: [
+                    { participants: { some: { userId: senderId } } },
+                    { participants: { some: { userId: recieverId } } },
+                ],
             }
-        })
+        });
         if (!existingConversation) {
             const conversation = await prisma.conversation.create({
                 data: {
@@ -61,7 +60,7 @@ export const getAllConversations = async (req: Request, res: Response) => {
         if (!userId) {
             return res.status(400).json({
                 success: false,
-                message: "Try again."
+                error: "Try again."
             })
         }
 
@@ -100,18 +99,40 @@ export const getAllConversations = async (req: Request, res: Response) => {
 
 
 export const createGroupConversation = async (req: Request, res: Response) => {
-
     try {
         const { name, creatorId, groupMemberIds } = req.body;
 
-        if (groupMemberIds.length < 2)
-            return res.status(400).json({ message: "Minimum 3 people are required to create a group" })
+        // Validate inputs
+        if (!name) {
+            return res.status(400).json({
+                success: false,
+                error: "Cannot create group without a name."
+            });
+        }
 
-        if (!name)
-            return res.status(400).json({ message: "Cannot create group without a name" })
+        if (!creatorId) {
+            return res.status(400).json({
+                success: false,
+                error: "Creator ID is required."
+            });
+        }
 
-        if (!creatorId || !groupMemberIds)
-            return res.status(400).json({ message: "cannot create group" })
+        if (!groupMemberIds || !Array.isArray(groupMemberIds)) {
+            return res.status(400).json({
+                success: false,
+                error: "Group member IDs must be an array."
+            });
+        }
+
+        if (groupMemberIds.length < 2) {
+            return res.status(400).json({
+                success: false,
+                error: "A group must include at least 3 members (creator + 2 others)."
+            });
+        }
+
+        // Avoid creator duplication
+        const uniqueMembers = groupMemberIds.filter((id: string) => id !== creatorId);
 
         const group = await prisma.conversation.create({
             data: {
@@ -120,15 +141,32 @@ export const createGroupConversation = async (req: Request, res: Response) => {
                 participants: {
                     create: [
                         { user: { connect: { id: creatorId } } },
-                        ...groupMemberIds.map((id: string) => ({
-                            user: { connect: { id } },
-                        })),
+                        ...uniqueMembers.map((id: string) => ({
+                            user: { connect: { id } }
+                        }))
                     ]
                 }
+            },
+            include: {
+                participants: {
+                    include: {
+                        user: true
+                    }
+                }
             }
-        })
+        });
+
+        return res.status(201).json({
+            success: true,
+            message: "Group created successfully",
+            data: group
+        });
 
     } catch (error) {
-
+        console.log("Group creation error:", error);
+        return res.status(500).json({
+            success: false,
+            error: "Failed to create group. Try again!"
+        });
     }
-}
+};
