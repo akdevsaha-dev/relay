@@ -3,6 +3,7 @@ import prisma from "../db/client.js";
 
 export const createConversation = async (req: Request, res: Response) => {
     const { senderId, recieverId } = req.body
+    console.log(senderId, recieverId)
     try {
         if (!senderId || !recieverId) {
             return res.status(400).json({
@@ -54,8 +55,7 @@ export const createConversation = async (req: Request, res: Response) => {
 }
 
 export const getAllConversations = async (req: Request, res: Response) => {
-    const { userId } = req.params
-
+    const userId = req.user?.id
     try {
         if (!userId) {
             return res.status(400).json({
@@ -101,8 +101,6 @@ export const getAllConversations = async (req: Request, res: Response) => {
 export const createGroupConversation = async (req: Request, res: Response) => {
     try {
         const { name, creatorId, groupMemberIds } = req.body;
-
-        // Validate inputs
         if (!name) {
             return res.status(400).json({
                 success: false,

@@ -8,6 +8,7 @@ import messageRoute from "./routes/message.route.js"
 import conversationRoute from "./routes/conversation.route.js"
 import settingsRoute from "./routes/settings.route.js"
 import { initSocket } from './socket/socket.js';
+import cookieParser from "cookie-parser"
 dotenv.config()
 
 const app = express()
@@ -17,6 +18,7 @@ app.use(cors({
 }))
 
 app.use(express.json())
+app.use(cookieParser())
 const server = createServer(app)
 
 initSocket(server)
