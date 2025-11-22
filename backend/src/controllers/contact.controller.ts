@@ -191,3 +191,29 @@ export const updateContact = async (req: Request, res: Response) => {
         });
     }
 }
+
+export const getUser = async (req: Request, res: Response) => {
+    const query = (req.query.query as string) || ""
+    if (!query) {
+        return res.json({ users: [] })
+    }
+
+    try {
+        const users = await prisma.user.findMany({
+            where: {
+                email: {
+                    contains: query,
+                    mode: "insensitive"
+                }
+            },
+            select: {
+                id: true,
+                email: true
+            }
+        })
+
+        return res.status(200).json({ users })
+    } catch (error) {
+        return res.status(500).json({ message: "Server error" });
+    }
+}
