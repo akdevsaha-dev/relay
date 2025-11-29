@@ -83,10 +83,9 @@ export const getAllConversations = async (req: Request, res: Response) => {
             },
         })
 
-        const conversations = allConversations.filter((c) => c.lastMessage !== null)
         return res.status(200).json({
             success: true,
-            data: conversations
+            data: allConversations
         })
 
     } catch (error) {
@@ -168,45 +167,3 @@ export const createGroupConversation = async (req: Request, res: Response) => {
         });
     }
 };
-
-
-export const getConversation = async (req: Request, res: Response) => {
-    const { conversationId } = req.params;
-    try {
-        if (!conversationId) {
-            return res.status(400).json({
-                error: "No conversation Id"
-            })
-        }
-        const conversation = await prisma.conversation.findUnique({
-            where: {
-                id: conversationId
-            },
-            include: {
-                participants: {
-                    include: {
-                        user: {
-                            select: {
-                                id: true,
-                                userName: true,
-                                avatarUrl: true,
-                                email: true,
-                                lastSeen: true,
-                                status: true
-                            }
-                        }
-                    }
-                }
-            }
-        })
-        return res.status(200).json({
-            success: true,
-            conversation: conversation
-        })
-    } catch (error) {
-        return res.status(400).json({
-            error: "Server error"
-        })
-    }
-
-}
