@@ -5,11 +5,11 @@ import prisma from "../db/client.js";
 
 
 export const addContact = async (req: Request, res: Response) => {
+    const ownerId = req.user?.id
     const schema = z.object({
-        ownerId: z.string(),
         addedUserId: z.string()
     })
-    const { ownerId, addedUserId } = schema.parse(req.body)
+    const { addedUserId } = schema.parse(req.body)
     if (!ownerId || !addedUserId) {
         return res.status(400).json({
             success: false,
@@ -52,7 +52,7 @@ export const addContact = async (req: Request, res: Response) => {
 }
 
 export const getAllContacts = async (req: Request, res: Response) => {
-    const { ownerId } = req.params;
+    const ownerId = req.user?.id
     try {
         if (!ownerId) {
             return res.status(400).json({
@@ -208,7 +208,9 @@ export const getUser = async (req: Request, res: Response) => {
             },
             select: {
                 id: true,
-                email: true
+                email: true,
+                avatarUrl: true,
+                status: true
             }
         })
 

@@ -1,6 +1,5 @@
 import type { Request, Response } from "express";
 import prisma from "../db/client.js";
-import { success } from "zod";
 
 export const createConversation = async (req: Request, res: Response) => {
     const senderId = req.user?.id
@@ -81,6 +80,11 @@ export const getAllConversations = async (req: Request, res: Response) => {
                 },
                 lastMessage: true
             },
+            orderBy: {
+                lastMessage: {
+                    createdAt: "desc"
+                }
+            }
         })
 
         return res.status(200).json({

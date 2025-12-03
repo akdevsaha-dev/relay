@@ -7,5 +7,5 @@ const router = express.Router()
 router.post("/signup", Signup)
 router.post("/signin", Signin)
 router.post("/logout", Logout)
-router.get("checkAuth", protectRoute, checkAuth)
+router.get("/checkAuth", protectRoute, checkAuth)
 export default router;
